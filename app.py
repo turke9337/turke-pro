@@ -11,18 +11,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ⚠️ تأكد من وضع مفتاحك هنا ليعمل البوت
-API_KEY = "AIzaSyAb5fX0M-Jj1cNDWFX-qnxicHm4q2cnpKI"
+# --- تعديل الربط مع الذكاء الاصطناعي ---
 try:
+    # سيقوم الموقع الآن بقراءة المفتاح من "Secrets" في إعدادات Streamlit Cloud بأمان
+    API_KEY = st.secrets["AIzaSyAb5fX0M-Jj1cNDWFX-qnxicHm4q2cnpKI"]
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
-except:
-    pass
+    # استخدام الإصدار المستقر والأقوى حالياً لضمان عدم تعليق السيرفر
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error("⚠️ فشل الاتصال بمحرك الذكاء الاصطناعي. تأكد من إعداد Secrets بشكل صحيح.")
 
 # ==========================================
 # 2. بوابة الأمان الصارمة
 # ==========================================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'logged_in' not in st.session_state: 
+    st.session_state.logged_in = False
 
 # كود CSS لتصميم منصة مدرستي وإصلاح مشاكل العرض
 st.markdown("""
@@ -38,7 +41,6 @@ st.markdown("""
     }
     .stMarkdown, .stText, .stChatMessage { text-align: right; direction: rtl; }
     
-    /* تصميم الأزرار المربعة الكبيرة */
     div.stButton > button {
         background-color: white; color: #1e293b; width: 100%; height: 140px;
         border-radius: 20px; border: 2px solid #e2e8f0; font-size: 20px; font-weight: bold;
@@ -46,7 +48,6 @@ st.markdown("""
     }
     div.stButton > button:hover { border-color: #0d9488; color: #0d9488; transform: translateY(-3px); }
     
-    /* منع تداخل النصوص في منتصف الشاشة */
     .block-container { padding-top: 2rem; }
     [data-testid="stSidebarNav"] { display: none; }
     </style>
@@ -60,17 +61,18 @@ if not st.session_state.logged_in:
         if u.strip() == "350" and p == "officer":
             st.session_state.logged_in = True
             st.rerun()
-        else: st.error("❌ بيانات فاشلة. ركز جيداً.")
+        else: 
+            st.error("❌ بيانات فاشلة. ركز جيداً.")
     st.stop() 
 
 # إدارة الصفحات
-if 'page' not in st.session_state: st.session_state.page = "الرئيسية"
-if 'chat_logs' not in st.session_state: st.session_state.chat_logs = []
-
-def set_page(name): st.session_state.current_page = name
+if 'page' not in st.session_state: 
+    st.session_state.page = "الرئيسية"
+if 'chat_logs' not in st.session_state: 
+    st.session_state.chat_logs = []
 
 # ==========================================
-# 3. بنك الكلمات المطور (دمج السكربت الخاص بك)
+# 3. بنك الكلمات المطور
 # ==========================================
 vocabulary_bank = {
     "A1": [{"word": "go", "type": "verb", "meaning": "move", "example": "I go home"}],
@@ -86,37 +88,57 @@ vocabulary_bank = {
 # ==========================================
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/ar/thumb/c/cf/Madrasati_Logo.png/800px-Madrasati_Logo.png", width=120)
-    if st.button("🏠 الرئيسية"): st.session_state.page = "الرئيسية"; st.rerun()
-    if st.button("🚪 خروج"): st.session_state.logged_in = False; st.rerun()
+    if st.button("🏠 الرئيسية"): 
+        st.session_state.page = "الرئيسية"
+        st.rerun()
+    if st.button("🚪 خروج"): 
+        st.session_state.logged_in = False
+        st.rerun()
 
 if st.session_state.page == "الرئيسية":
     st.markdown("""
         <div class="profile-card">
-            <h1 style='margin:0; font-size:26px;'>مرحباً بك تركي سفياني 🎖️♟️</h1>
-            <p style='margin:5px 0; opacity:0.9;'>ثانوية الإمام الشافعي | تم تأكيد هويتك.</p>
+            <h1 style='margin:0; font-size:26px;'>مرحباً بك تركي سفياني 🎖️</h1>
+            <p style='margin:5px 0; opacity:0.9;'>ثانوية الإمام الشافعي | تم تأكيد هويتك كـ "350".</p>
         </div>
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🤖\nالذكاء الاصطناعي"): st.session_state.page = "البوت"; st.rerun()
-        if st.button("📚\nالمكتبة"): st.session_state.page = "المكتبة"; st.rerun()
+        if st.button("🤖\nالذكاء الاصطناعي"): 
+            st.session_state.page = "البوت"
+            st.rerun()
+        if st.button("📚\nالمكتبة"): 
+            st.session_state.page = "المكتبة"
+            st.rerun()
     with col2:
-        if st.button("🔤\nمعسكر الكلمات"): st.session_state.page = "الكلمات"; st.rerun()
-        if st.button("📺\nالمرئيات"): st.session_state.page = "الفيديوهات"; st.rerun()
+        if st.button("🔤\nمعسكر الكلمات"): 
+            st.session_state.page = "الكلمات"
+            st.rerun()
+        if st.button("📺\nالمرئيات"): 
+            st.session_state.page = "الفيديوهات"
+            st.rerun()
 
 elif st.session_state.page == "البوت":
     st.title("🤖 مساعدك الشخصي (جيس)")
     for msg in st.session_state.chat_logs:
-        with st.chat_message(msg["role"]): st.markdown(msg["content"])
+        with st.chat_message(msg["role"]): 
+            st.markdown(msg["content"])
+            
     if prompt := st.chat_input("تحدث معي هنا يا مطيعي..."):
         st.session_state.chat_logs.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): st.markdown(prompt)
+        with st.chat_message("user"): 
+            st.markdown(prompt)
+            
         with st.chat_message("assistant"):
-            sys = "أنت جيس (Jace). حازم، مسيطر، وتلقب تركي بـ 'صغيري'. وجهه بصرامة لتعلم اللغات والشطرنج."
-            resp = model.generate_content(f"{sys} \n {prompt}")
-            st.markdown(resp.text)
-            st.session_state.chat_logs.append({"role": "assistant", "content": resp.text})
+            try:
+                sys_instruction = "أنت جيس (Jace). حازم، مسيطر، وتلقب تركي بـ 'صغيري'. وجهه بصرامة لتعلم اللغات والشطرنج والتخطيط العسكري."
+                full_prompt = f"{sys_instruction}\nالآن رد على هذا الطلب: {prompt}"
+                resp = model.generate_content(full_prompt)
+                st.markdown(resp.text)
+                st.session_state.chat_logs.append({"role": "assistant", "content": resp.text})
+            except:
+                st.error("السيرفر مشغول الحين... بس أنا هنا معك جرب بعد شوي")
 
 elif st.session_state.page == "الكلمات":
     st.title("🔤 معسكر الكلمات الشامل")
@@ -125,7 +147,7 @@ elif st.session_state.page == "الكلمات":
         with tabs[i]:
             for item in vocabulary_bank[level]:
                 st.markdown(f"""
-                    <div style='background:white; padding:20px; border-radius:15px; border:2px solid #e2e8f0; margin-bottom:10px;'>
+                    <div style='background:white; padding:20px; border-radius:15px; border:2px solid #e2e8f0; margin-bottom:10px; color:black;'>
                         <h2 style='color:#0d9488; margin:0;'>{item['word']}</h2>
                         <p><b>النوع:</b> {item['type']} | <b>المعنى:</b> {item['meaning']}</p>
                         <p style='color:gray;'><i>مثال: {item['example']}</i></p>
@@ -133,9 +155,9 @@ elif st.session_state.page == "الكلمات":
                 """, unsafe_allow_html=True)
 
 elif st.session_state.page == "المكتبة":
-    st.title("📚 المكتبة")
-    st.link_button("📖 قراءة كتاب (A1)", "https://english-e-reader.net/book/a-little-princess-frances-hodgson-burnett")
+    st.title("📚 المكتبة التعليمية")
+    st.link_button("📖 قراءة كتاب (A1) - قصة الأميرة الصغيرة", "https://english-e-reader.net/book/a-little-princess-frances-hodgson-burnett")
 
 elif st.session_state.page == "الفيديوهات":
-    st.title("📺 المرئيات")
+    st.title("📺 دروس مرئية")
     st.video("https://www.youtube.com/watch?v=juKd26qkywQ")
